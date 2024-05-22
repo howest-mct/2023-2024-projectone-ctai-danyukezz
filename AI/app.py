@@ -90,7 +90,7 @@ def show_preds_video(video_path, conf_threshold):
 
         # Sending data to the Bluetooth device.
         tx_q.put(str(ndrones))
-        print("ndrones: ", ndrones)
+        print("ndrones: ", ndrones, )
 
         yield annotated_frame, ndrones
 

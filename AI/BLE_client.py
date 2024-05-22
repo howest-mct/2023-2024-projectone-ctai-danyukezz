@@ -15,7 +15,7 @@ UART_RX_CHAR_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 UART_TX_CHAR_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
 # BLE_DEVICE_MAC = "D8:3A:DD:D9:72:4F" #"C4:4F:33:75:D9:B3"  # "D8:3A:DD:B8:9E:86" for RPi
-# BLE_DEVICE_NAME = "danyukezz-pi-gatt-uart"
+# BLE_DEVICE_NAME = "ctai-p1pi-danyukezz"
 BLE_DEVICE_UUID= "9C5F48EF-761D-7B38-8D0A-39DD75C539B1"
 
 # TIP: you can get this function and more from the ``more-itertools`` package.
@@ -99,7 +99,7 @@ async def uart_terminal(rx_q=None, tx_q=None, targetDeviceName=None, targetDevic
                             data = data.encode()
                             for s in sliced(data, rx_char.max_write_without_response_size):
                                 await client.write_gatt_char(rx_char, s, response=False)
-                            print("sent:", data)
+                            print("sent:", data, targetDeviceMac)
                     except:  # no data
                         time.sleep(0.5)
                         pass

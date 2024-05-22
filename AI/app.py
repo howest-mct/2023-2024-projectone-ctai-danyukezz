@@ -24,7 +24,7 @@ tx_q = Queue()
 rx_q = Queue()
 
 targetDeviceName=None
-targetDeviceMac="D8:3A:DD:B8:9E:86"
+targetDeviceMac="9C5F48EF-761D-7B38-8D0A-39DD75C539B1"
 
 def init_ble_thread():
     # Creating a new thread for running a function 'run' with specified arguments.
@@ -90,7 +90,7 @@ def show_preds_video(video_path, conf_threshold):
 
         # Sending data to the Bluetooth device.
         tx_q.put(str(ndrones))
-        print("ndrones: ", ndrones)
+        print("ndrones: ", ndrones, )
 
         yield annotated_frame, ndrones
 

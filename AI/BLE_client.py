@@ -14,8 +14,9 @@ UART_SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
 UART_RX_CHAR_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 UART_TX_CHAR_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
-BLE_DEVICE_MAC = "D8:3A:DD:B8:9E:86" #"C4:4F:33:75:D9:B3"  # "D8:3A:DD:B8:9E:86" for RPi
-
+# BLE_DEVICE_MAC = "D8:3A:DD:D9:72:4F" #"C4:4F:33:75:D9:B3"  # "D8:3A:DD:B8:9E:86" for RPi
+# BLE_DEVICE_NAME = "danyukezz-pi-gatt-uart"
+BLE_DEVICE_UUID= "9C5F48EF-761D-7B38-8D0A-39DD75C539B1"
 
 # TIP: you can get this function and more from the ``more-itertools`` package.
 def sliced(data: bytes, n: int) -> Iterator[bytes]:
@@ -36,7 +37,8 @@ async def uart_terminal(rx_q=None, tx_q=None, targetDeviceName=None, targetDevic
         # This assumes that the device includes the UART service UUID in the
         # advertising data. This test may need to be adjusted depending on the
         # actual advertising data supplied by the device.
-        print("found", device.address)
+        if device.address:
+            print("found", device.address, device.name)
         if targetDeviceMac != None and device.address == targetDeviceMac and UART_SERVICE_UUID.lower() in adv.service_uuids:   # ESP
             return True
         if targetDeviceName != None and device.name == targetDeviceName and UART_SERVICE_UUID.lower() in adv.service_uuids:   # ESP
@@ -118,6 +120,6 @@ def run(rx_q=None, tx_q=None, targetDeviceName=None, targetDeviceMac=None):
     except asyncio.exceptions.CancelledError:
         pass
 
-
 if __name__ == '__main__':
-    run(targetDeviceMac=BLE_DEVICE_MAC)
+    run(targetDeviceMac=BLE_DEVICE_UUID)
+

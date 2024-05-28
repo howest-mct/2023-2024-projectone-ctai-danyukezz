@@ -1,0 +1,12 @@
+names:
+- face
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: face_detection-y52o3
+  url: https://universe.roboflow.com/danyukezz/face_detection-y52o3/dataset/2
+  version: 2
+  workspace: danyukezz
+test: ../test/images
+train: ./train/images
+val: ./valid/images

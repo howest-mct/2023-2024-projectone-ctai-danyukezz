@@ -1,0 +1,13 @@
+names:
+- Drone
+- Worker
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: beeanalytics
+  url: https://universe.roboflow.com/work-wr3ct/beeanalytics/dataset/1
+  version: 1
+  workspace: work-wr3ct
+test: ../test/images
+train: ./train/images
+val: ./valid/images

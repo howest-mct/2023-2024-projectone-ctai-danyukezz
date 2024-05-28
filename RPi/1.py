@@ -1,20 +1,17 @@
-from ultralytics import YOLO
 import cv2
+from ultralytics import YOLO
 import matplotlib.pyplot as plt
 
 # Load the trained model
-model = YOLO('runs/detect/train4/weights/best.pt')
+model = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/detect/train7/weights/best.pt')
 
-# Open a connection to the webcam (0 is the default camera, using DirectShow backend)
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+# Open a connection to the webcam (0 is the default camera)
+cap = cv2.VideoCapture(0)
 
 # Check if the webcam is opened correctly
 if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
-
-plt.ion()  # Turn on interactive mode
-fig, ax = plt.subplots()
 
 while True:
     # Capture frame-by-frame
@@ -28,10 +25,7 @@ while True:
     frame_resized = cv2.resize(frame, (img_size, img_size))
 
     # Evaluate the model on the current frame
-    results = model.predict(source=frame_resized)
-
-    # Print results to inspect the structure
-    print(results)
+    results = model.predict(source=frame_resized, stream=False)
 
     # Draw results on the frame
     for result in results:
@@ -45,15 +39,10 @@ while True:
 
     # Convert BGR image to RGB for displaying with matplotlib
     frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
-
-    # Display the resulting frame using matplotlib
-    ax.clear()
-    ax.imshow(frame_rgb)
-    plt.draw()
-    plt.pause(0.001)
+    cv2.imshow('frame', frame_resized)
 
     # Break the loop on 'q' key press
-    if plt.waitforbuttonpress(0.001):
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 # When everything done, release the capture and close windows

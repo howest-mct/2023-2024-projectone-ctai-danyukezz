@@ -32,7 +32,6 @@ class LCD:
     def LCD_LINE_2(self) -> type:
         """ The LCD_LINE_2 property. """
         return self.__LCD_LINE_2
-    
 
     def button(self):
         return self.__button

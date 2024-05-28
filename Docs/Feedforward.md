@@ -1,12 +1,12 @@
-# Project Information
+# Smart AI Music Bot
 
-**FIRST NAME LAST NAME:** A B
+**FIRST & LAST NAME:** Danylo Bordunov
 
-**Sparring Partner:** C D
+**Sparring Partner:** Mykyta Tsykunov
 
-**Project Summary in max 10 words:** E
+**Project Summary in max 10 words:** Bot, that gives you a song, depending on your mood.
 
-**Project Title:** F
+**Project Title:** Smart AI Music Bot
 
 # Tips for Feedback Conversations
 
@@ -34,36 +34,36 @@
 
 ## Conversation 1 (Date: xx/xx/2024)
 
-Lecturer:
+Lecturer: Marie
 
 Questions for this conversation:
 
-- Question 1: V
+- Question 1: which models should I make and how to start?
 
 This is the feedback on my questions.
 
-- Feedback 1: G
+- Feedback 1: Make a model for face recognition first and then second model for emotion detection.
 
 ## Conversation 2 (Date: xx/xx/2024)
 
-Lecturer:
+Lecturer: Frederik
 
 Questions for this conversation:
 
-- Question 1: V
+- Question 1: Where I can store my music names and mp3 files?
 
 This is the feedback on my questions.
 
-- Feedback 1: G
+- Feedback 1: For the names use csv files, for the mp3 just a folder
 
 ## Conversation 3 (Date: xx/xx/2024)
 
-Lecturer:
+Lecturer: Tijn
 
 Questions for this conversation:
 
-- [x] Question 1: V
+- [x] Question 1: Just an overral question for my maker part
 
 This is the feedback on my questions.
 
-- Feedback 1: G
+- Feedback 1: Use piano hinges, glue, laser cutting etc

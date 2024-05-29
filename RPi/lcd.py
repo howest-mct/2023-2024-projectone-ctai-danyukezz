@@ -83,4 +83,9 @@ class LCD:
     def LCD_LINE_1(self, value: int) -> None:
         self.__LCD_LINE_1 = value
     
+    @property
+    def LCD_LINE_2(self) -> type:
+        """ The LCD_LINE_2 property. """
+        return self.__LCD_LINE_2
+    
     

@@ -93,3 +93,15 @@ Questions for this conversation:
 This is the feedback on my questions.
 
 - Feedback 1: Use usb speakers and connetct via i2c.
+
+## Conversation 6 (Date: 3/06/2024)
+
+Lecturer: Christophe
+
+Questions for this conversation:
+
+- [x] Question 1: How to delete all photos from github and commit later without the + grad io problem with web cam
+
+This is the feedback on my questions.
+
+- Feedback 1: Delete all the photos manually from the github and add .jpg to gitignore file, the same with the raspi

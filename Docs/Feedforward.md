@@ -32,7 +32,7 @@
 
 # Feedforward Conversations
 
-## Conversation 1 (Date: xx/xx/2024)
+## Conversation 1 (Date: 20/05/2024)
 
 Lecturer: Marie
 
@@ -44,7 +44,7 @@ This is the feedback on my questions.
 
 - Feedback 1: Make a model for face recognition first and then second model for emotion detection.
 
-## Conversation 2 (Date: xx/xx/2024)
+## Conversation 2 (Date: 21/05/2024)
 
 Lecturer: Frederik
 
@@ -56,7 +56,7 @@ This is the feedback on my questions.
 
 - Feedback 1: For the names use csv files, for the mp3 just a folder
 
-## Conversation 3 (Date: xx/xx/2024)
+## Conversation 3 (Date: 24/05/2024)
 
 Lecturer: Tijn
 
@@ -67,3 +67,29 @@ Questions for this conversation:
 This is the feedback on my questions.
 
 - Feedback 1: Use piano hinges, glue, laser cutting etc
+
+
+## Conversation 4 (Date: 29/05/2024)
+
+Lecturer: Marie
+
+Questions for this conversation:
+
+- [x] Question 1: How I can improve my model and other questions
+
+This is the feedback on my questions.
+
+- Feedback 1: Add some similar photos for sad and neutral dataset and apply hyper parameters
+
+
+## Conversation 5 (Date: 31/05/2024)
+
+Lecturer: Pieter Jan
+
+Questions for this conversation:
+
+- [x] Question 1: Questions about electronic connections and speakers 
+
+This is the feedback on my questions.
+
+- Feedback 1: Use usb speakers and connetct via i2c.

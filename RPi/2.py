@@ -23,7 +23,7 @@ lcd.clear()
 
 # Initialize the YOLO models
 model_detect = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/detect/train7/weights/best.pt')
-model_classify = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train6')
+model_classify = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train7')
 cap = cv2.VideoCapture(0)
 # Function to take a screenshot from the camera feed
 def take_screenshot():
@@ -39,7 +39,7 @@ def take_screenshot():
 
 def detect_and_crop_face():
     lcd.send_string("Preprocessing", lcd.LCD_LINE_1)
-    lcd.send_string("Of Photo...", lcd.LCD_LINE_2)
+    lcd.send_string("Of the Photo...", lcd.LCD_LINE_2)
     time.sleep(5)
     lcd.clear()
     path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/screenshot.jpg"

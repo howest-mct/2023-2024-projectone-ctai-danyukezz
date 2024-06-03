@@ -1,5 +1,7 @@
 # TODO: ignore venv
-
+test/
+train/
+valid/
 # Video files (general rule)
 *.mp4
 *.mov

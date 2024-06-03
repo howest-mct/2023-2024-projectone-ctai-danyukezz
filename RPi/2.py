@@ -7,14 +7,20 @@ import os
 import subprocess
 import numpy as np
 from lcd import LCD
+from RPi import GPIO
 import time
+from rgb import Rgb
+
+GPIO.setmode(GPIO.BCM)
+
 lcd = LCD()
 lcd.lcd_init()
 lcd.clear()
 lcd.send_string("Press SPACE to ", lcd.LCD_LINE_1)
 lcd.send_string("take screenshot", lcd.LCD_LINE_2)
-time.sleep(10)
+time.sleep(5)
 lcd.clear()
+
 # Initialize the YOLO models
 model_detect = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/detect/train7/weights/best.pt')
 model_classify = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train6')
@@ -32,6 +38,10 @@ def take_screenshot():
         print("Failed to capture frame from the camera feed")
 
 def detect_and_crop_face():
+    lcd.send_string("Preprocessing", lcd.LCD_LINE_1)
+    lcd.send_string("Of Photo...", lcd.LCD_LINE_2)
+    time.sleep(5)
+    lcd.clear()
     path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/screenshot.jpg"
     result = model_detect.predict(path)
     
@@ -49,7 +59,7 @@ def detect_and_crop_face():
 
     cropped_image = original_image.crop((x1, y1, x2, y2))
 
-    cropped_image = cropped_image.resize((48,48), resample=Image.BILINEAR)
+    # cropped_image = cropped_image.resize((48,48), resample=Image.BILINEAR)
 
     # Convert the PIL Image to a NumPy array
     cropped_image_np = np.array(cropped_image)
@@ -92,6 +102,14 @@ def classify_emotion():
     predicted_emotion = class_labels[top1_index]
     lcd.send_string(f"Emotion: {predicted_emotion}", lcd.LCD_LINE_1)
     lcd.send_string(f"Confidence: {top1_confidence.item():.2f}", lcd.LCD_LINE_2)
+    if predicted_emotion == 'neutral':
+        rgb.control_rgb(248,222,0)
+    elif predicted_emotion == 'happy':
+        rgb.control_rgb(0,255,0)
+    elif predicted_emotion == 'sad':
+        rgb.control_rgb(0,0,255)
+    elif predicted_emotion == 'angry':
+        rgb.control_rgb(255,0,0)
     time.sleep(5)
     lcd.clear()
     
@@ -160,7 +178,7 @@ def play_song(song_name):
         
         try:
             lcd.send_string("Playing a song:)", lcd.LCD_LINE_1)
-            lcd.send_string("ENTER to stop", lcd.LCD_LINE_2)
+            lcd.send_string("Press Q to stop", lcd.LCD_LINE_2)
             # Start ffmpeg subprocess to convert MP3 to WAV and output to stdout
             ffmpeg_process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
             
@@ -179,26 +197,36 @@ def play_song(song_name):
     else:
         print(f"No matching files found for the song: {song_name}")
 
-while True:
-    ret, frame = cap.read()
-    if ret:
-        cv2.imshow('Camera Feed', frame)
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord(' '):
+if __name__ == "__main__":
+    rgb = Rgb()
+    rgb.setup()
+    try:
+        while True:
+            ret, frame = cap.read()
+            if ret:
+                cv2.imshow('Camera Feed', frame)
+            key = cv2.waitKey(1) & 0xFF
+            # if key:
+                # lcd.send_string("Press SPACE to ", lcd.LCD_LINE_1)
+                # lcd.send_string("take screenshot", lcd.LCD_LINE_2)
+            if key == ord(' '):
+                lcd.clear()
+                take_screenshot()
+                time.sleep(3)
+                detect_and_crop_face()
+                time.sleep(3)
+                predicted_emotion, confidence = classify_emotion()
+                time.sleep(3)
+                song_name = get_random_song_by_emotion(predicted_emotion)
+                time.sleep(3)
+                play_song(song_name)
+            if key == ord('q'):
+                break
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cap.release()
+        cv2.destroyAllWindows()
         lcd.clear()
-        take_screenshot()
-        time.sleep(3)
-        detect_and_crop_face()
-        time.sleep(3)
-        predicted_emotion, confidence = classify_emotion()
-        time.sleep(3)
-        song_name = get_random_song_by_emotion(predicted_emotion)
-        time.sleep(3)
-        play_song(song_name)
-
-    elif key == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
-lcd.clear()
+        rgb.control_rgb(0,0,0)

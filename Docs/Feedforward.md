@@ -94,6 +94,7 @@ This is the feedback on my questions.
 
 - Feedback 1: Use usb speakers and connetct via i2c.
 
+<<<<<<< HEAD
 ## Conversation 6 (Date: 03/06/2024)
 
 Lecturer: Cristophe
@@ -111,3 +112,16 @@ I've had a conversations with Claudia, Marie, Stijn, Pieter Jan, Tijn. They said
 
 ## MVP02
 I've had a conversations with Claudia, Cristophe, Tijn. They said I'm good with the face recognition model and the project overall, but classification model still needs to be improved to the accuracy of minimum 0.8. Also gradio problem will be solved soon.
+=======
+## Conversation 6 (Date: 3/06/2024)
+
+Lecturer: Christophe
+
+Questions for this conversation:
+
+- [x] Question 1: How to delete all photos from github and commit later without the + grad io problem with web cam
+
+This is the feedback on my questions.
+
+- Feedback 1: Delete all the photos manually from the github and add .jpg to gitignore file, the same with the raspi
+>>>>>>> 7006b1789fccbc93409014e2d76f3f65daaafb1a

@@ -2,6 +2,7 @@
 test/
 train/
 valid/
+
 # Video files (general rule)
 *.mp4
 *.mov

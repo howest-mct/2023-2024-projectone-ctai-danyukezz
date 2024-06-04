@@ -16,10 +16,11 @@ GPIO.setmode(GPIO.BCM)
 lcd = LCD()
 lcd.lcd_init()
 lcd.clear()
-lcd.send_string("Press SPACE to ", lcd.LCD_LINE_1)
-lcd.send_string("take screenshot", lcd.LCD_LINE_2)
-time.sleep(5)
-lcd.clear()
+
+button = 20
+prev_button = 1
+count_pressed = 0
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Initialize the YOLO models
 model_detect = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/detect/train7/weights/best.pt')
@@ -32,16 +33,13 @@ def take_screenshot():
         cv2.imwrite("/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/screenshot.jpg", frame)
         lcd.send_string("   SCREENSHOT   ", lcd.LCD_LINE_1)
         lcd.send_string("     TAKEN      ", lcd.LCD_LINE_2)
-        time.sleep(3)
-        lcd.clear()
     else:   
         print("Failed to capture frame from the camera feed")
 
 def detect_and_crop_face():
-    lcd.send_string("Preprocessing", lcd.LCD_LINE_1)
-    lcd.send_string("Of the Photo...", lcd.LCD_LINE_2)
-    time.sleep(5)
     lcd.clear()
+    lcd.send_string("Preprocessing", lcd.LCD_LINE_1)
+    lcd.send_string("And predicting..", lcd.LCD_LINE_2)
     path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/screenshot.jpg"
     result = model_detect.predict(path)
     
@@ -77,9 +75,6 @@ def detect_and_crop_face():
     gray_image_pil.save("/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/cropped_face.jpg")
 
 def classify_emotion():
-    lcd.send_string("Predicting...", lcd.LCD_LINE_1)
-    time.sleep(3)
-    lcd.clear()
     weights_path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train5/weights/best.pt"
     # Initialize YOLO model with the weights file
     model = YOLO(weights_path)
@@ -97,7 +92,7 @@ def classify_emotion():
     # Find the index of the highest confidence score
     top1_index = class_probs.top1
     top1_confidence = class_probs.top1conf
-
+    lcd.clear()
     # Map the index to the corresponding class label
     predicted_emotion = class_labels[top1_index]
     lcd.send_string(f"Emotion: {predicted_emotion}", lcd.LCD_LINE_1)
@@ -110,8 +105,6 @@ def classify_emotion():
         rgb.control_rgb(0,0,255)
     elif predicted_emotion == 'angry':
         rgb.control_rgb(255,0,0)
-    time.sleep(5)
-    lcd.clear()
     
     return predicted_emotion, top1_confidence
 
@@ -142,11 +135,11 @@ def get_random_song_by_emotion(predicted_emotion):
 
     lcd.send_string(random_author, lcd.LCD_LINE_1)
     lcd.send_string(random_song, lcd.LCD_LINE_2)
-    time.sleep(3)
-    lcd.clear()
+
     return random_song
 
 def play_song(song_name):
+    lcd.clear()
     directory = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/songs"  # Change this to your directory
 
     # List all files in the directory
@@ -197,6 +190,19 @@ def play_song(song_name):
     else:
         print(f"No matching files found for the song: {song_name}")
 
+def button_callback(channel):
+    global count_pressed, prev_button
+    
+    if GPIO.input(button) != prev_button:
+        count_pressed += 1
+        lcd.clear()
+    if count_pressed == 1:
+        lcd.send_string("Press SPACE to ", lcd.LCD_LINE_1)
+        lcd.send_string("take screenshot", lcd.LCD_LINE_2)
+
+# Add event detection on the button pin
+GPIO.add_event_detect(button, GPIO.BOTH, callback=button_callback, bouncetime=200)
+
 if __name__ == "__main__":
     rgb = Rgb()
     rgb.setup()
@@ -206,10 +212,11 @@ if __name__ == "__main__":
             if ret:
                 cv2.imshow('Camera Feed', frame)
             key = cv2.waitKey(1) & 0xFF
-            # if key:
-                # lcd.send_string("Press SPACE to ", lcd.LCD_LINE_1)
-                # lcd.send_string("take screenshot", lcd.LCD_LINE_2)
+            if GPIO.input(button) == prev_button and count_pressed == 0:
+                lcd.send_string("Ready to start!", lcd.LCD_LINE_1)
+                lcd.send_string("Press green btn", lcd.LCD_LINE_2)
             if key == ord(' '):
+                count_pressed = 0
                 lcd.clear()
                 take_screenshot()
                 time.sleep(3)
@@ -220,7 +227,7 @@ if __name__ == "__main__":
                 song_name = get_random_song_by_emotion(predicted_emotion)
                 time.sleep(3)
                 play_song(song_name)
-            if key == ord('q'):
+            elif key == ord('q'):
                 break
 
     except KeyboardInterrupt:

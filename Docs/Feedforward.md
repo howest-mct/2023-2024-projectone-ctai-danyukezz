@@ -93,3 +93,21 @@ Questions for this conversation:
 This is the feedback on my questions.
 
 - Feedback 1: Use usb speakers and connetct via i2c.
+
+## Conversation 6 (Date: 03/06/2024)
+
+Lecturer: Cristophe
+
+Questions for this conversation:
+
+- [x] Question 1: Grad Io problem and github push problem.
+
+This is the feedback on my questions.
+
+- Feedback 1: Delete all the dataset folders from github and wait for the grad io solutions from the teahers.
+
+## MVP01
+I've had a conversations with Claudia, Marie, Stijn, Pieter Jan, Tijn. They said I'm pretty far already, but model needs to be more robust and improved with adding some photos.
+
+## MVP02
+I've had a conversations with Claudia, Cristophe, Tijn. They said I'm good with the face recognition model and the project overall, but classification model still needs to be improved to the accuracy of minimum 0.8. Also gradio problem will be solved soon.

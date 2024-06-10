@@ -10,22 +10,26 @@ from lcd import LCD
 from RPi import GPIO
 import time
 from rgb import Rgb
+import gradio as gr
 
 GPIO.setmode(GPIO.BCM)
 
-lcd = LCD()
-lcd.lcd_init()
-lcd.clear()
-
-button = 20
+button = 25
 prev_button = 1
 count_pressed = 0
-GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
 
 # Initialize the YOLO models
 model_detect = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/detect/train7/weights/best.pt')
 model_classify = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train7')
 cap = cv2.VideoCapture(0)
+
+def get_spaces(spaces):
+      string = ''
+      for i in range(16 - spaces):
+         string += ' '
+      return string
+
 # Function to take a screenshot from the camera feed
 def take_screenshot():
     ret, frame = cap.read()
@@ -38,7 +42,7 @@ def take_screenshot():
 
 def detect_and_crop_face():
     lcd.clear()
-    lcd.send_string("Preprocessing", lcd.LCD_LINE_1)
+    lcd.send_string("Preprocessing   ", lcd.LCD_LINE_1)
     lcd.send_string("And predicting..", lcd.LCD_LINE_2)
     path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/screenshot.jpg"
     result = model_detect.predict(path)
@@ -95,8 +99,9 @@ def classify_emotion():
     lcd.clear()
     # Map the index to the corresponding class label
     predicted_emotion = class_labels[top1_index]
-    lcd.send_string(f"Emotion: {predicted_emotion}", lcd.LCD_LINE_1)
-    lcd.send_string(f"Confidence: {top1_confidence.item():.2f}", lcd.LCD_LINE_2)
+    top1_confidence = F"{top1_confidence.item():.2f}"
+    lcd.send_string(("Emotion: " + predicted_emotion), lcd.LCD_LINE_1)
+    lcd.send_string(("Confidence: " + top1_confidence), lcd.LCD_LINE_2)
     if predicted_emotion == 'neutral':
         rgb.control_rgb(248,222,0)
     elif predicted_emotion == 'happy':
@@ -105,7 +110,7 @@ def classify_emotion():
         rgb.control_rgb(0,0,255)
     elif predicted_emotion == 'angry':
         rgb.control_rgb(255,0,0)
-    
+    time.sleep(3)
     return predicted_emotion, top1_confidence
 
 def get_random_song_by_emotion(predicted_emotion):
@@ -132,10 +137,10 @@ def get_random_song_by_emotion(predicted_emotion):
     random_author, random_song = random.choice(songs_by_emotion[emotion_code])
     print("Author:", random_author)
     print("Song:", random_song)
-
+    lcd.clear()
     lcd.send_string(random_author, lcd.LCD_LINE_1)
     lcd.send_string(random_song, lcd.LCD_LINE_2)
-
+    time.sleep(3)
     return random_song
 
 def play_song(song_name):
@@ -171,7 +176,7 @@ def play_song(song_name):
         
         try:
             lcd.send_string("Playing a song:)", lcd.LCD_LINE_1)
-            lcd.send_string("Press Q to stop", lcd.LCD_LINE_2)
+            lcd.send_string("Press Q to stop ", lcd.LCD_LINE_2)
             # Start ffmpeg subprocess to convert MP3 to WAV and output to stdout
             ffmpeg_process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
             
@@ -179,61 +184,78 @@ def play_song(song_name):
             ffplay_process = subprocess.Popen(ffplay_command, stdin=ffmpeg_process.stdout)
             
             # Wait for the user to exit by pressing Enter
-            print("Press Enter to stop playback...")
-            input() # Wait for a single character input (Enter key)
-            lcd.clear()
-            # Terminate ffplay process
-            ffplay_process.terminate()
-            
+            while True:
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord('q'):
+                    ffplay_process.terminate()
+                    ffmpeg_process.terminate()
+                    lcd.clear()
+                    rgb.control_rgb(0,0,0)
+                    break
+
         except subprocess.CalledProcessError as e:
             print(f"An error occurred: {e}")
     else:
         print(f"No matching files found for the song: {song_name}")
 
-def button_callback(channel):
-    global count_pressed, prev_button
-    
-    if GPIO.input(button) != prev_button:
-        count_pressed += 1
+message_displayed = False
+sleep_mode = True
+
+def button1_callback(pin_number):
+    global message_displayed, sleep_mode, current_button_state
+    if current_button_state == GPIO.LOW:
+        print('hello1')
+        sleep_mode = False
+        message_displayed = False
         lcd.clear()
-    if count_pressed == 1:
-        lcd.send_string("Press SPACE to ", lcd.LCD_LINE_1)
-        lcd.send_string("take screenshot", lcd.LCD_LINE_2)
+        lcd.send_string(' Sleep mode OFF ', lcd.LCD_LINE_1)
+        time.sleep(3)
+        lcd.clear()
+    elif current_button_state is GPIO.HIGH:
+        lcd.clear()
+        sleep_mode = True
+        lcd.clear()
+        lcd.send_string(' Sleep mode ON ', lcd.LCD_LINE_1)
+        time.sleep(3)
+        lcd.clear()
+        message_displayed = False
 
-# Add event detection on the button pin
-GPIO.add_event_detect(button, GPIO.BOTH, callback=button_callback, bouncetime=200)
+GPIO.add_event_detect(button, GPIO.BOTH, callback=button1_callback, bouncetime=300)
 
-if __name__ == "__main__":
+try:
     rgb = Rgb()
     rgb.setup()
-    try:
-        while True:
-            ret, frame = cap.read()
-            if ret:
-                cv2.imshow('Camera Feed', frame)
-            key = cv2.waitKey(1) & 0xFF
-            if GPIO.input(button) == prev_button and count_pressed == 0:
-                lcd.send_string("Ready to start!", lcd.LCD_LINE_1)
-                lcd.send_string("Press green btn", lcd.LCD_LINE_2)
-            if key == ord(' '):
-                count_pressed = 0
-                lcd.clear()
-                take_screenshot()
-                time.sleep(3)
-                detect_and_crop_face()
-                time.sleep(3)
-                predicted_emotion, confidence = classify_emotion()
-                time.sleep(3)
-                song_name = get_random_song_by_emotion(predicted_emotion)
-                time.sleep(3)
-                play_song(song_name)
-            elif key == ord('q'):
-                break
+    lcd = LCD()
+    lcd.lcd_init()
+    lcd.send_string("Ready to start! ", lcd.LCD_LINE_1)
+    lcd.send_string("Press a button ", lcd.LCD_LINE_2)
+    while True:
+        current_button_state = GPIO.input(button)
+        print(current_button_state)
+        ret, frame = cap.read()
+        if ret:
+            cv2.imshow('Camera Feed', frame)
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord(' '):
+            lcd.clear()
+            take_screenshot()
+            time.sleep(3)
+            detect_and_crop_face()
+            time.sleep(3)
+            predicted_emotion, confidence = classify_emotion()
+            time.sleep(3)
+            song_name = get_random_song_by_emotion(predicted_emotion)
+            time.sleep(3)
+            play_song(song_name)
+        elif key == ord('q'):
+            break
+        else:
+            time.sleep(1)  # Polling interval while in sleep mode
 
-    except KeyboardInterrupt:
-        pass
-    finally:
-        cap.release()
-        cv2.destroyAllWindows()
-        lcd.clear()
-        rgb.control_rgb(0,0,0)
+except KeyboardInterrupt:
+    pass
+finally:
+    cap.release()
+    cv2.destroyAllWindows()
+    lcd.clear()
+    rgb.control_rgb(0, 0, 0)

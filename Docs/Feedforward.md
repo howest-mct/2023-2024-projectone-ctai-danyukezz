@@ -106,7 +106,7 @@ This is the feedback on my questions.
 
 - Feedback 1: Delete all the dataset folders from github and wait for the grad io solutions from the teahers.
 
-## Conversation 7 (Date: 07/06/2024)
+## Conversation 7 (Date: 05/06/2024)
 
 Lecturer: Marie
 
@@ -118,8 +118,23 @@ This is the feedback on my questions.
 
 - Feedback 1: Try some different techniques, if it's still almost the same, it's also fine, but tell about it in the presentation.
 
+## Conversation 7 (Date: 07/06/2024)
+
+Lecturer: Pieter Jan
+
+Questions for this conversation:
+
+- [x] Question 1: External button GPIO bug
+
+This is the feedback on my questions.
+
+- Feedback 1: Connect 2 cables to GPIO 25, 1 cable to 3.3V and 1 cable to GROUND, 1 cable that left you can cut off.
+
 ## MVP01
 I've had a conversations with Claudia, Marie, Stijn, Pieter Jan, Tijn. They said I'm pretty far already, but model needs to be more robust and improved with adding some photos.
 
 ## MVP02
 I've had a conversations with Claudia, Cristophe, Tijn. They said I'm good with the face recognition model and the project overall, but classification model still needs to be improved to the accuracy of minimum 0.8. Also gradio problem will be solved soon.
+
+## MVP03
+I've had a conversations with Stijn and Pieter Jan. They liked my maker part and all of the connections, I still have some small mistakes with the code and maker part, but I have enough time to fix them. My commits, video etc are fine, but toggl has less hours then needed, because I was not toggling on the weekends. Overall, I'm almost finished with the project and just have some small mistakes to solve.

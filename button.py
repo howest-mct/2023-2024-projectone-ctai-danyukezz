@@ -8,9 +8,9 @@ try:
     while True:
         button_state = GPIO.input(button)
         if button_state is GPIO.LOW:
-            print('not pressed')
+            print('1')
         elif button_state is GPIO.HIGH:
-            print('pressed')
+            print('0')
         time.sleep(1)
 except KeyboardInterrupt:
     pass

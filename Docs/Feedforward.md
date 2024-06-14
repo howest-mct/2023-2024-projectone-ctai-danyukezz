@@ -118,17 +118,33 @@ This is the feedback on my questions.
 
 - Feedback 1: Try some different techniques, if it's still almost the same, it's also fine, but tell about it in the presentation.
 
+<<<<<<< HEAD
 ## Conversation 8 (Date: 07/06/2024)
+=======
+<<<<<<< HEAD
+## Conversation 8 (Date: 10/06/2024)
+=======
+## Conversation 7 (Date: 07/06/2024)
+>>>>>>> 70e98950620265ebbe58caa050570178ea946889
+>>>>>>> c5cb65cff5577ff0594b6f84c3e6c764c4eef97a
 
 Lecturer: Pieter Jan
 
 Questions for this conversation:
 
+<<<<<<< HEAD
+- [x] Question 1: How to correctly connect external button
+
+This is the feedback on my questions.
+
+- Feedback 1: Try some different techniques, if it's still almost the same, it's also fine, but tell about it in the presentation.
+=======
 - [x] Question 1: External button GPIO bug
 
 This is the feedback on my questions.
 
 - Feedback 1: Connect 2 cables to GPIO 25, 1 cable to 3.3V and 1 cable to GROUND, 1 cable that left you can cut off.
+>>>>>>> 70e98950620265ebbe58caa050570178ea946889
 
 ## MVP01
 I've had a conversations with Claudia, Marie, Stijn, Pieter Jan, Tijn. They said I'm pretty far already, but model needs to be more robust and improved with adding some photos.

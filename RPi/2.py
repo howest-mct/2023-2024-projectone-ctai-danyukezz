@@ -9,6 +9,7 @@ import numpy as np
 from lcd import LCD
 from RPi import GPIO
 import time
+import signal
 from rgb import Rgb
 import gradio as gr
 
@@ -17,7 +18,7 @@ GPIO.setmode(GPIO.BCM)
 button = 25
 prev_button = 1
 count_pressed = 0
-GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Initialize the YOLO models
 model_detect = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/detect/train7/weights/best.pt')
@@ -66,7 +67,6 @@ def detect_and_crop_face():
     # Convert the PIL Image to a NumPy array
     cropped_image_np = np.array(cropped_image)
 
-    # Convert the image from RGB to BGR (if needed)
     cropped_image_np = cv2.cvtColor(cropped_image_np, cv2.COLOR_RGB2BGR)
 
     # Convert the BGR image to grayscale
@@ -79,17 +79,14 @@ def detect_and_crop_face():
     gray_image_pil.save("/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/cropped_face.jpg")
 
 def classify_emotion():
-    weights_path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train5/weights/best.pt"
-    # Initialize YOLO model with the weights file
+    weights_path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train35/weights/best.pt"
     model = YOLO(weights_path)
 
-    # Perform inference on the image
     predictions = model.predict("/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/cropped_face.jpg")
     print(predictions)
 
     class_labels = ["angry", "happy", "neutral", "sad"]
-
-    # Extract the class probabilities from the predictions
+    
     prediction = predictions[0]  # Assuming a single prediction
     class_probs = prediction.probs
 
@@ -143,7 +140,18 @@ def get_random_song_by_emotion(predicted_emotion):
     time.sleep(3)
     return random_song
 
+ffplay_process = None
+ffmpeg_process = None
+finished = False
+stopped = False
+
 def play_song(song_name):
+    global ffplay_process, ffmpeg_process, finished, message_displayed, stopped
+    stopped = False
+    lcd.clear()
+    lcd.send_string("Preparing to    ", lcd.LCD_LINE_1)
+    lcd.send_string("Play a song:)   ", lcd.LCD_LINE_2)
+    time.sleep(3)
     lcd.clear()
     directory = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/songs"  # Change this to your directory
 
@@ -170,29 +178,76 @@ def play_song(song_name):
         # Command for ffplay to read WAV audio from stdin
         ffplay_command = [
             "ffplay", 
-            "-nodisp",  # Suppress video display
+            "-nodisp",
+            "-autoexit",  # Automatically exit when done
             "-"
         ]
         
         try:
-            lcd.send_string("Playing a song:)", lcd.LCD_LINE_1)
-            lcd.send_string("Press Q to stop ", lcd.LCD_LINE_2)
+            lcd.send_string("Press Q to stop ", lcd.LCD_LINE_1)
+            lcd.send_string("Button to pause ", lcd.LCD_LINE_2)
             # Start ffmpeg subprocess to convert MP3 to WAV and output to stdout
             ffmpeg_process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
             
             # Start ffplay subprocess to read WAV audio from stdin
-            ffplay_process = subprocess.Popen(ffplay_command, stdin=ffmpeg_process.stdout)
+            ffplay_process = subprocess.Popen(ffplay_command, stdin=ffmpeg_process.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             
-            # Wait for the user to exit by pressing Enter
             while True:
                 key = cv2.waitKey(1) & 0xFF
-                if key == ord('q'):
+                if key == ord('q') and not sleep_mode:
+                    lcd.clear()
+                    lcd.send_string("Song is stopped", lcd.LCD_LINE_1)
+                    lcd.send_string("Starting again ", lcd.LCD_LINE_2)
                     ffplay_process.terminate()
                     ffmpeg_process.terminate()
+                    time.sleep(3)
+                    finished = True
+                    message_displayed = False
+                    stopped = True
+                    rgb.control_rgb(0, 0, 0)
+                    break
+                elif key == ord('q') and sleep_mode:
                     lcd.clear()
-                    rgb.control_rgb(0,0,0)
+                    lcd.send_string("Song is stopped", lcd.LCD_LINE_1)
+                    lcd.send_string("Button to start", lcd.LCD_LINE_2)
+                    ffplay_process.terminate()
+                    ffmpeg_process.terminate()
+                    time.sleep(3)
+                    finished = True
+                    message_displayed = False
+                    stopped = True
+                    rgb.control_rgb(0, 0, 0)
                     break
 
+                elif sleep_mode and ffplay_process.poll() is None:
+                    ffplay_process.send_signal(signal.SIGSTOP)
+
+                elif not sleep_mode and ffplay_process.poll() is None:
+                    ffplay_process.send_signal(signal.SIGCONT)
+
+                if ffplay_process.poll() is not None and not sleep_mode and stopped == False:
+                    lcd.clear()
+                    lcd.send_string("Song is finished", lcd.LCD_LINE_1)
+                    lcd.send_string("Starting again  ", lcd.LCD_LINE_2)
+                    time.sleep(3)
+                    ffplay_process.terminate()
+                    ffmpeg_process.terminate()
+                    finished = True
+                    message_displayed = False
+                    rgb.control_rgb(0, 0, 0)
+                    break
+                elif ffplay_process.poll() is not None and sleep_mode and stopped == False:
+                    lcd.clear()
+                    lcd.send_string("Song is finished", lcd.LCD_LINE_1)
+                    lcd.send_string("Button to start ", lcd.LCD_LINE_2)
+                    time.sleep(3)
+                    ffplay_process.terminate()
+                    ffmpeg_process.terminate()
+                    finished = True
+                    message_displayed = False
+                    rgb.control_rgb(0, 0, 0)
+                    break
+                
         except subprocess.CalledProcessError as e:
             print(f"An error occurred: {e}")
     else:
@@ -202,23 +257,20 @@ message_displayed = False
 sleep_mode = True
 
 def button1_callback(pin_number):
-    global message_displayed, sleep_mode, current_button_state
-    if current_button_state == GPIO.LOW:
-        print('hello1')
-        sleep_mode = False
+    global sleep_mode, message_displayed, ffplay_process
+    current_button_state = GPIO.input(button)
+
+    if current_button_state == GPIO.HIGH:
+        lcd.clear()
+        lcd.send_string(' Sleep mode ON  ', lcd.LCD_LINE_1)
+        sleep_mode = True
         message_displayed = False
+    elif current_button_state == GPIO.LOW:
         lcd.clear()
         lcd.send_string(' Sleep mode OFF ', lcd.LCD_LINE_1)
         time.sleep(3)
-        lcd.clear()
-    elif current_button_state is GPIO.HIGH:
-        lcd.clear()
-        sleep_mode = True
-        lcd.clear()
-        lcd.send_string(' Sleep mode ON ', lcd.LCD_LINE_1)
-        time.sleep(3)
-        lcd.clear()
-        message_displayed = False
+        sleep_mode = False
+        message_displayed = False  # Reset message displayed to show it only once
 
 GPIO.add_event_detect(button, GPIO.BOTH, callback=button1_callback, bouncetime=300)
 
@@ -229,28 +281,31 @@ try:
     lcd.lcd_init()
     lcd.send_string("Ready to start! ", lcd.LCD_LINE_1)
     lcd.send_string("Press a button ", lcd.LCD_LINE_2)
+    
     while True:
-        current_button_state = GPIO.input(button)
-        print(current_button_state)
-        ret, frame = cap.read()
-        if ret:
-            cv2.imshow('Camera Feed', frame)
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord(' '):
-            lcd.clear()
-            take_screenshot()
-            time.sleep(3)
-            detect_and_crop_face()
-            time.sleep(3)
-            predicted_emotion, confidence = classify_emotion()
-            time.sleep(3)
-            song_name = get_random_song_by_emotion(predicted_emotion)
-            time.sleep(3)
-            play_song(song_name)
-        elif key == ord('q'):
-            break
+        if not sleep_mode:
+            if not message_displayed:
+                lcd.clear()
+                lcd.send_string("Press SPACE to ", lcd.LCD_LINE_1)
+                lcd.send_string("take screenshot", lcd.LCD_LINE_2)
+                message_displayed = True  # Ensure message is displayed only once
+            ret, frame = cap.read()
+            if ret:
+                cv2.imshow('Camera Feed', frame)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord(' '):
+                lcd.clear()
+                take_screenshot()
+                time.sleep(3)
+                detect_and_crop_face()
+                time.sleep(3)
+                predicted_emotion, confidence = classify_emotion()
+                time.sleep(3)
+                song_name = get_random_song_by_emotion(predicted_emotion)
+                time.sleep(3)
+                play_song(song_name)
         else:
-            time.sleep(1)  # Polling interval while in sleep mode
+            time.sleep(0.1)  # Shorter sleep interval for better responsiveness
 
 except KeyboardInterrupt:
     pass

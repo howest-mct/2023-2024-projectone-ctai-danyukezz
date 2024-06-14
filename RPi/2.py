@@ -14,7 +14,7 @@ from rgb import Rgb
 import gradio as gr
 
 GPIO.setmode(GPIO.BCM)
-
+is_playing = False
 button = 25
 prev_button = 1
 count_pressed = 0
@@ -22,7 +22,7 @@ GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Initialize the YOLO models
 model_detect = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/detect/train7/weights/best.pt')
-model_classify = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train5/weights/best.pt')
+model_classify = YOLO('/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train7/weights/best.pt')
 cap = cv2.VideoCapture(0)
 
 def get_spaces(spaces):
@@ -79,7 +79,7 @@ def detect_and_crop_face():
     gray_image_pil.save("/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/cropped_face.jpg")
 
 def classify_emotion():
-    weights_path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train5/weights/best.pt"
+    weights_path = "/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/runs/classify/train7/weights/best.pt"
     model = YOLO(weights_path)
 
     predictions = model.predict("/home/user/2023-2024-projectone-ctai-danyukezz/AI/AI model exam/face_recognition/cropped_face.jpg")
@@ -146,7 +146,7 @@ finished = False
 stopped = False
 
 def play_song(song_name):
-    global ffplay_process, ffmpeg_process, finished, message_displayed, stopped
+    global ffplay_process, ffmpeg_process, finished, message_displayed, stopped, is_playing
     stopped = False
     lcd.clear()
     lcd.send_string("Preparing to    ", lcd.LCD_LINE_1)
@@ -184,6 +184,7 @@ def play_song(song_name):
         ]
         
         try:
+            is_playing = True
             lcd.send_string("Press Q to stop ", lcd.LCD_LINE_1)
             lcd.send_string("Button to pause ", lcd.LCD_LINE_2)
             # Start ffmpeg subprocess to convert MP3 to WAV and output to stdout
@@ -200,11 +201,12 @@ def play_song(song_name):
                     lcd.send_string("Starting again ", lcd.LCD_LINE_2)
                     ffplay_process.terminate()
                     ffmpeg_process.terminate()
-                    time.sleep(3)
                     finished = True
                     message_displayed = False
                     stopped = True
+                    is_playing = False
                     rgb.control_rgb(0, 0, 0)
+                    time.sleep(3)
                     break
                 elif key == ord('q') and sleep_mode:
                     lcd.clear()
@@ -212,11 +214,12 @@ def play_song(song_name):
                     lcd.send_string("Button to start", lcd.LCD_LINE_2)
                     ffplay_process.terminate()
                     ffmpeg_process.terminate()
-                    time.sleep(3)
                     finished = True
                     message_displayed = False
+                    is_playing = False
                     stopped = True
                     rgb.control_rgb(0, 0, 0)
+                    time.sleep(3)
                     break
 
                 elif sleep_mode and ffplay_process.poll() is None:
@@ -229,23 +232,25 @@ def play_song(song_name):
                     lcd.clear()
                     lcd.send_string("Song is finished", lcd.LCD_LINE_1)
                     lcd.send_string("Starting again  ", lcd.LCD_LINE_2)
-                    time.sleep(3)
                     ffplay_process.terminate()
                     ffmpeg_process.terminate()
                     finished = True
                     message_displayed = False
+                    is_playing = False
                     rgb.control_rgb(0, 0, 0)
+                    time.sleep(3)
                     break
                 elif ffplay_process.poll() is not None and sleep_mode and stopped == False:
                     lcd.clear()
                     lcd.send_string("Song is finished", lcd.LCD_LINE_1)
                     lcd.send_string("Button to start ", lcd.LCD_LINE_2)
-                    time.sleep(3)
                     ffplay_process.terminate()
                     ffmpeg_process.terminate()
                     finished = True
                     message_displayed = False
+                    is_playing = False
                     rgb.control_rgb(0, 0, 0)
+                    time.sleep(3)
                     break
                 
         except subprocess.CalledProcessError as e:
@@ -259,18 +264,34 @@ sleep_mode = True
 def button1_callback(pin_number):
     global sleep_mode, message_displayed, ffplay_process
     current_button_state = GPIO.input(button)
+    
+    if current_button_state == GPIO.LOW and is_playing == False:
+        lcd.clear()
+        lcd.send_string(' Sleep mode OFF ', lcd.LCD_LINE_1)
+        # time.sleep(3)
+        sleep_mode = False
+        message_displayed = False
 
-    if current_button_state == GPIO.HIGH:
+    elif current_button_state == GPIO.LOW and is_playing == True:
+        lcd.clear()
+        lcd.send_string('Song is playing ', lcd.LCD_LINE_1)
+        lcd.send_string('Button to pause ', lcd.LCD_LINE_2)
+        sleep_mode = False
+        message_displayed = False
+
+    if current_button_state == GPIO.HIGH and is_playing == False:
         lcd.clear()
         lcd.send_string(' Sleep mode ON  ', lcd.LCD_LINE_1)
         sleep_mode = True
+        rgb.control_rgb(0,0,0)
         message_displayed = False
-    elif current_button_state == GPIO.LOW:
+
+    elif current_button_state == GPIO.HIGH and is_playing == True:
         lcd.clear()
-        lcd.send_string(' Sleep mode OFF ', lcd.LCD_LINE_1)
-        time.sleep(3)
-        sleep_mode = False
-        message_displayed = False  # Reset message displayed to show it only once
+        lcd.send_string('Song is paused! ', lcd.LCD_LINE_1)
+        lcd.send_string('Button - unpause', lcd.LCD_LINE_2)
+        sleep_mode = True
+        message_displayed = False
 
 GPIO.add_event_detect(button, GPIO.BOTH, callback=button1_callback, bouncetime=300)
 
@@ -283,34 +304,40 @@ try:
     lcd.send_string("Press a button ", lcd.LCD_LINE_2)
     
     while True:
+        key = cv2.waitKey(1) & 0xFF
         if not sleep_mode:
             if not message_displayed:
+                time.sleep(3)
                 lcd.clear()
                 lcd.send_string("Press SPACE to ", lcd.LCD_LINE_1)
                 lcd.send_string("take screenshot", lcd.LCD_LINE_2)
                 message_displayed = True  # Ensure message is displayed only once
             ret, frame = cap.read()
-            if ret:
+            if ret and sleep_mode == False:
                 cv2.imshow('Camera Feed', frame)
-            key = cv2.waitKey(1) & 0xFF
             if key == ord(' '):
-                lcd.clear()
-                take_screenshot()
-                time.sleep(3)
-                detect_and_crop_face()
-                time.sleep(3)
-                predicted_emotion, confidence = classify_emotion()
-                time.sleep(3)
-                song_name = get_random_song_by_emotion(predicted_emotion)
-                time.sleep(3)
-                play_song(song_name)
+                if sleep_mode == False:
+                    lcd.clear()
+                    take_screenshot()
+                    time.sleep(3)
+                if sleep_mode == False:
+                    detect_and_crop_face()
+                    time.sleep(3)
+                if sleep_mode == False:
+                    predicted_emotion, confidence = classify_emotion()
+                    time.sleep(3)
+                if sleep_mode == False:
+                    song_name = get_random_song_by_emotion(predicted_emotion)
+                    time.sleep(3)
+                if sleep_mode == False:
+                    play_song(song_name)
         else:
+            key = 1
             time.sleep(0.1)  # Shorter sleep interval for better responsiveness
-
 except KeyboardInterrupt:
     pass
 finally:
+    lcd.clear()
     cap.release()
     cv2.destroyAllWindows()
-    lcd.clear()
     rgb.control_rgb(0, 0, 0)

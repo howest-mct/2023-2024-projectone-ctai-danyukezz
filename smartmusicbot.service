@@ -1,0 +1,16 @@
+[Unit]
+Description=ProjectOne SmartMusicBot
+After=network.target
+
+[Service]
+ExecStart=/bin/bash -c 'DISPLAY=:0 /home/user/2023-2024-projectone-ctai-danyukezz/.venv/bin/python /home/user/2023-2024-projectone-ctai-danyukezz/RPi/2.py'
+WorkingDirectory=/home/user/2023-2024-projectone-ctai-danyukezz/RPi
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=user
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=99
+
+[Install]
+WantedBy=multi-user.target

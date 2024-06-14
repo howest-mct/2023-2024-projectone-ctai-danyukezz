@@ -33,21 +33,21 @@
 
    - Use the command:
      ```sh
-     sudo cp myproject.service /etc/systemd/system/myproject.service
+     sudo cp smartmusicbot.service /etc/systemd/system/smartmusicbot.service
      ```
 
 4. **Test the File by Starting It:**
 
    - Start the service with:
      ```sh
-     sudo systemctl start myproject.service
+     sudo systemctl start smartmusicbot.service
      ```
 
 5. **Stop the Service:**
 
    - Stop the service with:
      ```sh
-     sudo systemctl stop myproject.service
+     sudo systemctl stop smartmusicbot.service
      ```
 
 6. **Enable the Script to Start Automatically After Booting:**

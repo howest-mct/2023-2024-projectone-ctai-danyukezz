@@ -118,7 +118,7 @@ This is the feedback on my questions.
 
 - Feedback 1: Try some different techniques, if it's still almost the same, it's also fine, but tell about it in the presentation.
 
-## Conversation 7 (Date: 07/06/2024)
+## Conversation 8 (Date: 07/06/2024)
 
 Lecturer: Pieter Jan
 

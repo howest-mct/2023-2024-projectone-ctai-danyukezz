@@ -118,6 +118,18 @@ This is the feedback on my questions.
 
 - Feedback 1: Try some different techniques, if it's still almost the same, it's also fine, but tell about it in the presentation.
 
+## Conversation 8 (Date: 10/06/2024)
+
+Lecturer: Pieter Jan
+
+Questions for this conversation:
+
+- [x] Question 1: How to correctly connect external button
+
+This is the feedback on my questions.
+
+- Feedback 1: Try some different techniques, if it's still almost the same, it's also fine, but tell about it in the presentation.
+
 ## MVP01
 I've had a conversations with Claudia, Marie, Stijn, Pieter Jan, Tijn. They said I'm pretty far already, but model needs to be more robust and improved with adding some photos.
 

@@ -208,7 +208,8 @@ def play_song(song_name):
                     rgb.control_rgb(0, 0, 0)
                     time.sleep(3)
                     break
-                elif key == ord('q') and sleep_mode:
+                
+                if key == ord('q') and sleep_mode:
                     lcd.clear()
                     lcd.send_string("Song is stopped", lcd.LCD_LINE_1)
                     lcd.send_string("Button to start", lcd.LCD_LINE_2)
@@ -254,9 +255,6 @@ def play_song(song_name):
                     break
         except subprocess.CalledProcessError as e:
             print(f"An error occurred: {e}")
-        finally:
-            ffplay_process.terminate()
-            ffplay_process.wait()
     else:
         print(f"No matching files found for the song: {song_name}")
 

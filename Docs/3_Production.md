@@ -54,18 +54,18 @@
 
    - Enable the service to start automatically with:
      ```sh
-     sudo systemctl enable myproject.service
+     sudo systemctl enable smartmusicbot.service
      ```
 
 7. **Check the Status of Your Service:**
 
    - View the service status with:
      ```sh
-     sudo service mijnproject status
+     sudo service smartmusicbot status
      ```
 
 8. **View the Logs:**
    - Check the logs with:
      ```sh
-     sudo journalctl -u mijnproject
+     sudo journalctl -u smartmusicbot
      ```
